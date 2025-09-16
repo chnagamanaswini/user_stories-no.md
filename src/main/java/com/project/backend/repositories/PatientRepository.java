@@ -1,53 +1,17 @@
-package com.project.backend.repositories;
+package com.example.demo.repository;
 
-import com.project.backend.models.Patient;
-import java.util.ArrayList;
-import java.util.List;
+import com.example.demo.model.Patient;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public class PatientRepository {
-    private List<Patient> patients = new ArrayList<>();
+import java.util.Optional;
 
-    // Save patient
-    public void save(Patient patient) {
-        patients.add(patient);
-        System.out.println("Patient saved: " + patient);
-    }
+@Repository
+public interface PatientRepository extends JpaRepository<Patient, Long> {
 
-    // Find all patients
-    public List<Patient> findAll() {
-        return patients;
-    }
+    // Retrieve patient by email (derived query)
+    Optional<Patient> findByEmail(String email);
 
-    // Find patient by ID
-    public Patient findById(int patientId) {
-        for (Patient patient : patients) {
-            if (patient.getPatientId() == patientId) {
-                return patient;
-            }
-        }
-        return null;
-    }
-
-    // Update patient
-    public boolean update(int patientId, String name, int age, String gender, String contactInfo) {
-        Patient patient = findById(patientId);
-        if (patient != null) {
-            patient.setName(name);
-            patient.setAge(age);
-            patient.setGender(gender);
-            patient.setContactInfo(contactInfo);
-            return true;
-        }
-        return false;
-    }
-
-    // Delete patient
-    public boolean delete(int patientId) {
-        Patient patient = findById(patientId);
-        if (patient != null) {
-            patients.remove(patient);
-            return true;
-        }
-        return false;
-    }
+    // Retrieve patient using either email or phone number (custom query)
+    Optional<Patient> findByEmailOrPhone(String email, String phone);
 }
