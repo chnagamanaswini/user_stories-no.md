@@ -1,23 +1,19 @@
-@GetMapping("/availability")
-public ResponseEntity<?> getDoctorAvailability(
-        @RequestParam String role,
-        @RequestParam Long doctorId,
-        @RequestParam String date,
-        @RequestHeader("Authorization") String token) {
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.http.ResponseEntity;
+// ... other imports ...
 
-    // Validate token or role if required
-    // Example logic
-    if (!authService.validateToken(token)) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
-    }
-
-    List<Availability> availabilityList = doctorService.getAvailability(doctorId, date);
-    if (availabilityList.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No availability found");
-    }
-    return ResponseEntity.ok(availabilityList);
-}
-List<Availability> findByDoctorIdAndDate(Long doctorId, String date);
-public List<Availability> getAvailability(Long doctorId, String date) {
-    return availabilityRepository.findByDoctorIdAndDate(doctorId, date);
+// Example correct method using Path Variables
+@GetMapping("/users/{userId}/doctors/{doctorId}/available/{date}/{token}")
+public ResponseEntity<?> checkAvailability(
+    @PathVariable Long userId,          // Extracts the 'userId' from the URL path
+    @PathVariable Long doctorId,        // Extracts the 'doctorId' from the URL path
+    @PathVariable String date,          // Extracts the 'date' from the URL path
+    @PathVariable String token          // Extracts the 'token' from the URL path
+) {
+    // ... your original method logic goes here, using the variables ...
+    // Note: The structure might vary slightly, but the key is using @PathVariable.
+    
+    // Example logic return:
+    // return ResponseEntity.ok("Doctor availability checked successfully for " + doctorId);
 }
