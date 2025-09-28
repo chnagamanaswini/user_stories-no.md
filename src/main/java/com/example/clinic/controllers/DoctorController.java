@@ -1,62 +1,23 @@
-package com.example.clinic.controllers;
+@GetMapping("/availability")
+public ResponseEntity<?> getDoctorAvailability(
+        @RequestParam String role,
+        @RequestParam Long doctorId,
+        @RequestParam String date,
+        @RequestHeader("Authorization") String token) {
 
-import com.example.clinic.models.Doctor;
-import com.example.clinic.repositories.DoctorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
-
-@RestController
-@RequestMapping("/doctors")
-public class DoctorController {
-
-    @Autowired
-    private DoctorRepository doctorRepository;
-
-    // ✅ Get all doctors
-    @GetMapping
-    public List<Doctor> getAllDoctors() {
-        return doctorRepository.findAll();
+    // Validate token or role if required
+    // Example logic
+    if (!authService.validateToken(token)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
     }
 
-    // ✅ Get doctor by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Doctor> getDoctorById(@PathVariable Long id) {
-        Optional<Doctor> doctor = doctorRepository.findById(id);
-        return doctor.map(ResponseEntity::ok)
-                     .orElseGet(() -> ResponseEntity.notFound().build());
+    List<Availability> availabilityList = doctorService.getAvailability(doctorId, date);
+    if (availabilityList.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No availability found");
     }
-
-    // ✅ Add new doctor
-    @PostMapping
-    public Doctor createDoctor(@RequestBody Doctor doctor) {
-        return doctorRepository.save(doctor);
-    }
-
-    // ✅ Update doctor
-    @PutMapping("/{id}")
-    public ResponseEntity<Doctor> updateDoctor(@PathVariable Long id, @RequestBody Doctor doctorDetails) {
-        return doctorRepository.findById(id)
-                .map(doctor -> {
-                    doctor.setName(doctorDetails.getName());
-                    doctor.setSpecialization(doctorDetails.getSpecialization());
-                    doctor.setAvailableTime(doctorDetails.getAvailableTime());
-                    return ResponseEntity.ok(doctorRepository.save(doctor));
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    // ✅ Delete doctor
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDoctor(@PathVariable Long id) {
-        return doctorRepository.findById(id)
-                .map(doctor -> {
-                    doctorRepository.delete(doctor);
-                    return ResponseEntity.noContent().<Void>build();
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+    return ResponseEntity.ok(availabilityList);
+}
+List<Availability> findByDoctorIdAndDate(Long doctorId, String date);
+public List<Availability> getAvailability(Long doctorId, String date) {
+    return availabilityRepository.findByDoctorIdAndDate(doctorId, date);
 }
